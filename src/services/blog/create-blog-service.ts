@@ -1,5 +1,4 @@
 import { BlogRepository } from "@/repositories/blog.repository";
-import { UserRepository } from "@/repositories/user.repository";
 import { CreateBlogInput } from "@/schema/blog";
 
 type CreateBlogData = CreateBlogInput & {

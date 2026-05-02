@@ -12,7 +12,7 @@ const authMiddleware = new AuthMiddleware();
 
 router.post("/v1/signup", validateSchema(signupSchema), authController.signup);
 router.get("/v1/verify-email", validateSchema(verifyEmailSchema), authController.verifyEmail);
-router.post("/v1/login", validateSchema(loginSchema), authController.login);``
+router.post("/v1/login", validateSchema(loginSchema), authController.login);
 
 router.get("/v1/me", authMiddleware.execute, permittedRole([Role.ADMIN]), (req, res) => {
   res.json({ code: 200, status: "success", message: "Authenticated" });

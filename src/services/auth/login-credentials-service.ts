@@ -1,7 +1,7 @@
 import { UserRepository } from "@/repositories/user.repository";
 import { TokenRepository } from "@/repositories/token.repository";
 import { verifyPassword } from "@/utils/password-hashing";
-import { signAccessToken, signRefreshToken, TokenExpiry } from "@/lib/jwt";
+import { TokenExpiry, signAccessToken, signRefreshToken } from "@/lib/jwt";
 
 export async function LoginCredentialsService(email: string, password: string) {
   const userRepository = new UserRepository();
