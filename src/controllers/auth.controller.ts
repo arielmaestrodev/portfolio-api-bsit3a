@@ -1,7 +1,28 @@
 import { Request, Response } from "express";
-import { signupService, verifyEmailService } from "@/services/auth";
+import { signupService, verifyEmailService, LoginCredentialsService } from "@/services/auth";
+import { toMilliseconds, TokenExpiry } from "@/lib/jwt";
+import { ENV } from "@/config/env";
 
 export class AuthController {
+  // Helper to set cookies
+  private setAuthCookies(res: Response, tokens: { accessToken: string; refreshToken: string }) {
+    const isProduction = ENV.NODE_ENV === "production";
+
+    res.cookie("accessToken", tokens.accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: toMilliseconds(TokenExpiry.ACCESS_TOKEN_EXPIRES),
+    });
+
+    res.cookie("refreshToken", tokens.refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: toMilliseconds(TokenExpiry.REFRESH_TOKEN_EXPIRES),
+    });
+  }
+
   public signup = async (req: Request, res: Response) => {
     const { name, email, password } = req.body ?? {};
     const response = await signupService(name, email, password);
@@ -13,4 +34,16 @@ export class AuthController {
     const response = await verifyEmailService(token as string);
     return res.status(response.code).json(response);
   }
+
+  // Handle Login Account
+  public login = async (req: Request, res: Response) => {
+    const { email, password } = req.body ?? {};
+    const result = await LoginCredentialsService(email, password);
+
+    if (result.code === 200 && result.data?.tokens) {
+      this.setAuthCookies(res, result.data.tokens);
+    }
+
+    return res.status(result.code).json(result);
+  };
 }
